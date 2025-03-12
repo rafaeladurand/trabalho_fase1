@@ -30,10 +30,7 @@ async function createUser(req, res) {
 }
 async function getUserPurchases(req, res) {
   try {
-    const user = await User.findById(req.params.userId).populate({
-      path: 'purchases',
-      populate: { path: 'product' }
-    });
+    const user = await User.findById(req.params.userId).populate({ path: 'purchases', populate: { path: 'products' } });
     if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
@@ -46,7 +43,7 @@ async function getUserPurchases(req, res) {
 // Função para obter os detalhes de um usuário
 async function getUser(req, res) {
   try {
-    const user = await User.findById(req.params.id).select('-password'); // Não retorna a senha
+    const user = await User.findById(req.params.id); // Não retorna a senha
     if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }

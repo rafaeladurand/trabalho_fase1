@@ -13,7 +13,7 @@ const purchaseSchema = new mongoose.Schema(
     }], 
     price: {
       type: Number,
-      required: true,
+      required: false,
     },
     purchaseDate: {
       type: Date,
