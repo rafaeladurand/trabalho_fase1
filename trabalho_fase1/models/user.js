@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const Purchase = require('./purchase');
 
 // Definindo o esquema do usuário
 const userSchema = new mongoose.Schema(
