@@ -1,24 +1,16 @@
-let mongoose = require('mongoose');
+// Tive problemas na conexão com o MongoDB Compass e utilizei o Atlas
+const mongoose = require("mongoose");
 
-const server = 'localhost:27017'; // COLOQUE O NOME DO SEU SERVIDOR DO BANCO DE DADOS
-const database = 'goMarket';      // COLOQUE O NOME DO SEU BANCO DE DADOS
+const connectDatabase = () => {
+  console.log("Wait for connection to database...");
 
-class Database {
-  constructor() {
-    this._connect()
-  }
-  
-_connect() {
-     mongoose.connect(`mongodb://${server}/${database}`)
-       .then(() => {
-         console.log('Database connection successful')
-       })
-       .catch(err => {
-         console.error('Database connection error')
-       })
-  }
-}
+  mongoose
+    .connect(
+      "mongodb+srv://root:root@fase1.0fpkd.mongodb.net/?retryWrites=true&w=majority&appName=Fase1",
+      { useNewUrlParser: true, useUnifiedTopology: true }
+    )
+    .then(() => console.log("MongoDB Atlas Connected"))
+    .catch((error) => console.log(error));
+};
 
-module.exports = new Database()
-
-
+module.exports = connectDatabase;

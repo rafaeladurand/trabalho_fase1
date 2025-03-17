@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const Product = require('../models/product');
 const Purchase = require('../models/purchase');
 const User = require('../models/user');
@@ -28,18 +29,42 @@ async function createUser(req, res) {
     res.status(500).json({ message: 'Erro interno do servidor.' });
   }
 }
-async function getUserPurchases(req, res) {
+
+// Função de login com geração de token JWT // /gustavo
+async function loginUser(req, res) {
   try {
-    const user = await User.findById(req.params.userId).populate({ path: 'purchases', populate: { path: 'products' } });
+    const { login, password } = req.body;
+
+    const user = await User.findOne({ login });
     if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
+      return res.status(401).json({ message: 'Credenciais inválidas.' });
     }
-    res.json(user.purchases);
+
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Credenciais inválidas.' });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, login: user.login },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        login: user.login,
+        fullName: user.fullName,
+      },
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Erro interno do servidor.' });
   }
 }
+
 // Função para obter os detalhes de um usuário
 async function getUser(req, res) {
   try {
@@ -79,7 +104,7 @@ async function updateUser(req, res) {
     user.fullName = fullName || user.fullName;
     user.login = login || user.login;
     if (password) {
-      user.password = password; // Atualiza a senha, se fornecida
+      user.password = password; // Será re-hash automaticamente pelo pre('save')
     }
 
     await user.save();
@@ -104,4 +129,31 @@ async function deleteUser(req, res) {
   }
 }
 
-module.exports = { createUser, getUser, getAllUsers, updateUser, deleteUser, getUserPurchases };
+// Função para buscar compras do usuário
+async function getUserPurchases(req, res) {
+  try {
+    const user = await User.findById(req.params.userId).populate({
+      path: 'purchases',
+      populate: { path: 'products' }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    res.json(user.purchases);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro interno do servidor.' });
+  }
+}
+
+module.exports = {
+  createUser,
+  loginUser, // /gustavo
+  getUser,
+  getAllUsers,
+  updateUser,
+  deleteUser,
+  getUserPurchases
+};
