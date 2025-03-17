@@ -11,16 +11,20 @@ const purchaseSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'Product' 
     }], 
-    price: {
+    finalPrices: [{ 
+      productId: mongoose.Schema.Types.ObjectId, 
+      price: Number 
+    }], 
+    totalPrice: {
       type: Number,
-      required: false,
+      required: true,
     },
     purchaseDate: {
       type: Date,
-      default: Date.now,  // A data de compra será a data atual por padrão
+      default: Date.now,
     },
   },
-  { timestamps: true }  // Para registrar as datas de criação e atualização
+  { timestamps: true }
 );
 
 module.exports = mongoose.model('Purchase', purchaseSchema);

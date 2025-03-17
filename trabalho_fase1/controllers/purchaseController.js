@@ -6,47 +6,41 @@ async function createPurchase(req, res) {
   try {
     const { userId, productIds } = req.body;
     
-    // Verifica se o usuário existe
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
 
-    // Busca os produtos no banco de dados
     const products = await Product.find({ _id: { $in: productIds } });
 
     if (products.length !== productIds.length) {
       return res.status(404).json({ message: 'Um ou mais produtos não foram encontrados.' });
     }
 
-    // Calcula o preço total
-    const totalPrice = products.reduce((total, product) => {
-      return total + (product.promotionalPrice ?? product.currentPrice);
-    }, 0);
+    // Gerar lista de preços finais
+    const finalPrices = products.map(product => ({
+      productId: product._id,
+      price: product.promotionalPrice ?? product.currentPrice
+    }));
 
-    // Cria a nova compra
+    // Calcular preço total
+    const totalPrice = finalPrices.reduce((total, item) => total + item.price, 0);
+
     const newPurchase = new Purchase({ 
       user: userId, 
       products: productIds, 
-      price: totalPrice 
+      finalPrices, 
+      totalPrice
     });
 
     await newPurchase.save();
 
-    // Adiciona a compra ao usuário
     user.purchases.push(newPurchase._id);
     await user.save();
 
-    // Retorna a compra com o preço no JSON de resposta
     res.status(201).json({ 
       message: 'Compra registrada com sucesso.', 
-      purchase: {
-        id: newPurchase._id,
-        user: newPurchase.user,
-        products: newPurchase.products,
-        price: newPurchase.price,  // Aqui garantimos que o preço está na resposta
-        createdAt: newPurchase.createdAt
-      }
+      purchase: newPurchase 
     });
   } catch (error) {
     console.error(error);
