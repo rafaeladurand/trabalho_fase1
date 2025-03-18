@@ -1,4 +1,3 @@
-// Tive problemas na conexão com o MongoDB Compass e utilizei o Atlas
 const mongoose = require("mongoose");
 
 const connectDatabase = () => {

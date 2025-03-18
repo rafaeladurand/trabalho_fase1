@@ -12,7 +12,7 @@ const productSchema = new mongoose.Schema(
     },
     promotionalPrice: {
       type: Number,
-      default: null,  // Se não houver preço promocional, será nulo
+      default: null, 
     },
     type: {
       type: String,
@@ -20,14 +20,14 @@ const productSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      default: null,  // Se não houver descrição, será nulo
+      default: null, 
     },
     expirationDate: {
       type: Date,
-      default: null,  // Se não houver data de validade, será nulo
+      default: null, 
     },
   },
-  { timestamps: true }  // Para registrar as datas de criação e atualização
+  { timestamps: true } 
 );
 
 module.exports = mongoose.model('Product', productSchema);
